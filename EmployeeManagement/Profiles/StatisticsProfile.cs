@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http.Features;
 
-namespace EmployeeManagement.MapperProfiles
+namespace EmployeeManagement.Profiles
 {
     public class StatisticsProfile : Profile
     {

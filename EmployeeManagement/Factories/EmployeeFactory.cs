@@ -1,6 +1,6 @@
-﻿using EmployeeManagement.DataAccess.Entities;
+﻿using EmployeeManagement.Entities;
 
-namespace EmployeeManagement.Business
+namespace EmployeeManagement.Factories
 {
     /// <summary>
     /// Factory for creation employees
@@ -11,19 +11,19 @@ namespace EmployeeManagement.Business
         /// Create an employee
         /// </summary>
         public virtual Employee CreateEmployee(string firstName,
-            string lastName, 
-            string? company = null, 
+            string lastName,
+            string? company = null,
             bool isExternal = false)
         {
             if (string.IsNullOrEmpty(firstName))
             {
-                throw new ArgumentException($"'{nameof(firstName)}' cannot be null or empty.", 
+                throw new ArgumentException($"'{nameof(firstName)}' cannot be null or empty.",
                     nameof(firstName));
             }
 
             if (string.IsNullOrEmpty(lastName))
             {
-                throw new ArgumentException($"'{nameof(lastName)}' cannot be null or empty.", 
+                throw new ArgumentException($"'{nameof(lastName)}' cannot be null or empty.",
                     nameof(lastName));
             }
 

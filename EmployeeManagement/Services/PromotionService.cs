@@ -1,9 +1,11 @@
-﻿using EmployeeManagement.DataAccess.Entities;
-using EmployeeManagement.DataAccess.Services;
+﻿using EmployeeManagement.Business;
+using EmployeeManagement.Entities;
+using EmployeeManagement.Interfaces.Repositories;
+using EmployeeManagement.Interfaces.Services;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
-namespace EmployeeManagement.Business
+namespace EmployeeManagement.Services
 {
     public class PromotionService : IPromotionService
     {

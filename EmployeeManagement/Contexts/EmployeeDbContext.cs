@@ -1,7 +1,7 @@
-﻿using EmployeeManagement.DataAccess.Entities;
+﻿using EmployeeManagement.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace EmployeeManagement.DataAccess.DbContexts
+namespace EmployeeManagement.Contexts
 {
     public class EmployeeDbContext : DbContext
     {
@@ -54,11 +54,11 @@ namespace EmployeeManagement.DataAccess.DbContexts
                 .HasData(
                     new InternalEmployee("Megan", "Jones", 2, 3000, false, 2)
                     {
-                        Id = Guid.Parse("72f2f5fe-e50c-4966-8420-d50258aefdcb") 
+                        Id = Guid.Parse("72f2f5fe-e50c-4966-8420-d50258aefdcb")
                     },
                     new InternalEmployee("Jaimy", "Johnson", 3, 3400, true, 1)
                     {
-                        Id = Guid.Parse("f484ad8f-78fd-46d1-9f87-bbb1e676e37f") 
+                        Id = Guid.Parse("f484ad8f-78fd-46d1-9f87-bbb1e676e37f")
                     });
 
             modelBuilder
@@ -79,13 +79,13 @@ namespace EmployeeManagement.DataAccess.DbContexts
                             EmployeesThatAttendedId = Guid.Parse("f484ad8f-78fd-46d1-9f87-bbb1e676e37f") }
                     }
                 ));
-             
+
             modelBuilder.Entity<ExternalEmployee>()
                 .HasData(
                     new ExternalEmployee("Amanda", "Smith", "IT for Everyone, Inc")
                     {
                         Id = Guid.Parse("72f2f5fe-e50c-4966-8420-d50258aefdcb")
-                    });           
+                    });
         }
     }
 }

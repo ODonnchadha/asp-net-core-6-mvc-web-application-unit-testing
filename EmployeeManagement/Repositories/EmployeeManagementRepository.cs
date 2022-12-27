@@ -1,8 +1,9 @@
-﻿using EmployeeManagement.DataAccess.DbContexts;
-using EmployeeManagement.DataAccess.Entities;
+﻿using EmployeeManagement.Contexts;
+using EmployeeManagement.Entities;
+using EmployeeManagement.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace EmployeeManagement.DataAccess.Services
+namespace EmployeeManagement.Repositories
 {
     public class EmployeeManagementRepository : IEmployeeManagementRepository
     {
@@ -17,7 +18,7 @@ namespace EmployeeManagement.DataAccess.Services
         {
             return await _context.InternalEmployees
                 .Include(e => e.AttendedCourses)
-                .ToListAsync(); 
+                .ToListAsync();
         }
 
         public async Task<InternalEmployee?> GetInternalEmployeeAsync(Guid employeeId)

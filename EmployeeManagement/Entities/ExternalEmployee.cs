@@ -1,4 +1,4 @@
-﻿namespace EmployeeManagement.DataAccess.Entities
+﻿namespace EmployeeManagement.Entities
 {
     public class ExternalEmployee : Employee
     {
@@ -7,7 +7,7 @@
         public ExternalEmployee(
             string firstName,
             string lastName,
-            string company) 
+            string company)
             : base(firstName, lastName)
         {
             Company = company;

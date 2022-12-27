@@ -1,6 +1,6 @@
-﻿using EmployeeManagement.DataAccess.Entities;
+﻿using EmployeeManagement.Entities;
 
-namespace EmployeeManagement.Business
+namespace EmployeeManagement.Interfaces.Services
 {
     public interface IPromotionService
     {

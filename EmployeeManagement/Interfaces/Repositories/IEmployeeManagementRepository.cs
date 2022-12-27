@@ -1,6 +1,6 @@
-﻿using EmployeeManagement.DataAccess.Entities;
+﻿using EmployeeManagement.Entities;
 
-namespace EmployeeManagement.DataAccess.Services
+namespace EmployeeManagement.Interfaces.Repositories
 {
     public interface IEmployeeManagementRepository
     {

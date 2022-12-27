@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace EmployeeManagement.DataAccess.Entities
+namespace EmployeeManagement.Entities
 {
     public class InternalEmployee : Employee
-    { 
+    {
         [Required]
         public int YearsInService { get; set; }
 

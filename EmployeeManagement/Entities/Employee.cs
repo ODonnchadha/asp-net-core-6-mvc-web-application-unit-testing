@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace EmployeeManagement.DataAccess.Entities
+namespace EmployeeManagement.Entities
 {
     /// <summary>
     /// Base class for all employees
@@ -25,13 +25,13 @@ namespace EmployeeManagement.DataAccess.Entities
         {
             get { return $"{FirstName} {LastName}"; }
         }
-         
+
         public Employee(
             string firstName,
             string lastName)
         {
             FirstName = firstName;
-            LastName = lastName;          
+            LastName = lastName;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using EmployeeManagement.DataAccess.Entities;
+using EmployeeManagement.Entities;
 
-namespace EmployeeManagement.MapperProfiles
+namespace EmployeeManagement.Profiles
 {
     public class CourseProfile : Profile
     {

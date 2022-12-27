@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using EmployeeManagement.Business;
+using EmployeeManagement.Interfaces.Services;
 using EmployeeManagement.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 

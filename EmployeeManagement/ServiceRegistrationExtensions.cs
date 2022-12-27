@@ -1,6 +1,9 @@
-﻿using EmployeeManagement.Business;
-using EmployeeManagement.DataAccess.DbContexts;
-using EmployeeManagement.DataAccess.Services;
+﻿using EmployeeManagement.Contexts;
+using EmployeeManagement.Factories;
+using EmployeeManagement.Interfaces.Repositories;
+using EmployeeManagement.Interfaces.Services;
+using EmployeeManagement.Repositories;
+using EmployeeManagement.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace EmployeeManagement
@@ -19,11 +22,8 @@ namespace EmployeeManagement
         public static IServiceCollection RegisterDataServices(
             this IServiceCollection services, IConfiguration configuration)
         {
-            // add the DbContext
             services.AddDbContext<EmployeeDbContext>(options =>
                 options.UseSqlite(configuration.GetConnectionString("EmployeeManagementDB")));
-
-            // register the repository
             services.AddScoped<IEmployeeManagementRepository, EmployeeManagementRepository>();
             return services;
         }
