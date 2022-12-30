@@ -9,42 +9,36 @@ namespace EmployeeManagement.Services
 {
     public class EmployeeService : IEmployeeService
     {
-        // Ids of obligatory courses: "Company Introduction" and "Respecting Your Colleagues" 
         private Guid[] _obligatoryCourseIds = {
             Guid.Parse("37e03ca7-c730-4351-834c-b66f280cdb01"),
-            Guid.Parse("1fd115cf-f44c-4982-86bc-a8fe2e4ff83e") };
+            Guid.Parse("1fd115cf-f44c-4982-86bc-a8fe2e4ff83e")
+        };
 
-        private readonly IEmployeeManagementRepository _repository;
-        private readonly EmployeeFactory _employeeFactory;
+        private readonly EmployeeFactory factory;
+        private readonly IEmployeeManagementRepository repository;
 
         public event EventHandler<EmployeeIsAbsentEventArgs>? EmployeeIsAbsent;
 
-        public EmployeeService(IEmployeeManagementRepository repository,
-            EmployeeFactory employeeFactory)
+        public EmployeeService(
+            EmployeeFactory factory, IEmployeeManagementRepository repository)
         {
-            _repository = repository;
-            _employeeFactory = employeeFactory;
+            this.factory = factory;
+            this.repository = repository;
         }
 
-        public async Task AttendCourseAsync(InternalEmployee employee,
-            Course attendedCourse)
+        public async Task AttendCourseAsync(InternalEmployee employee, Course attendedCourse)
         {
-            var alreadyAttendedCourse = employee.AttendedCourses
-                .Any(c => c.Id == attendedCourse.Id);
+            var alreadyAttendedCourse = 
+                employee.AttendedCourses.Any(c => c.Id == attendedCourse.Id);
 
             if (alreadyAttendedCourse)
             {
                 return;
             }
 
-            // add course 
             employee.AttendedCourses.Add(attendedCourse);
+            await repository.SaveChangesAsync();
 
-            // save changes 
-            await _repository.SaveChangesAsync();
-
-            // execute business logic: when a course is attended, 
-            // the suggested bonus must be recalculated
             employee.SuggestedBonus = employee.YearsInService
                 * employee.AttendedCourses.Count * 100;
         }
@@ -54,23 +48,17 @@ namespace EmployeeManagement.Services
             employee.Salary += 100;
             employee.MinimumRaiseGiven = true;
 
-            // save this
-            await _repository.SaveChangesAsync();
+            await repository.SaveChangesAsync();
         }
 
         public async Task GiveRaiseAsync(InternalEmployee employee, int raise)
         {
-            // raise must be at least 100
             if (raise < 100)
             {
                 throw new EmployeeInvalidRaiseException(
                     "Invalid raise: raise must be higher than or equal to 100.", raise);
-                //throw new Exception(
-                //  "Invalid raise: raise must be higher than or equal to 100."); 
             }
 
-            // if minimum raise was previously given, the raise must 
-            // be higher than the minimum raise
             if (employee.MinimumRaiseGiven && raise == 100)
             {
                 throw new EmployeeInvalidRaiseException(
@@ -85,29 +73,29 @@ namespace EmployeeManagement.Services
             {
                 employee.Salary += raise;
                 employee.MinimumRaiseGiven = false;
-                await _repository.SaveChangesAsync();
+
+                await repository.SaveChangesAsync();
             }
         }
 
         public async Task<InternalEmployee?> FetchInternalEmployeeAsync(Guid employeeId)
         {
-            var employee = await _repository.GetInternalEmployeeAsync(employeeId);
+            var employee = await repository.GetInternalEmployeeAsync(employeeId);
 
             if (employee != null)
             {
-                // calculate fields
                 employee.SuggestedBonus = CalculateSuggestedBonus(employee);
             }
+
             return employee;
         }
 
         public async Task<IEnumerable<InternalEmployee>> FetchInternalEmployeesAsync()
         {
-            var employees = await _repository.GetInternalEmployeesAsync();
+            var employees = await repository.GetInternalEmployeesAsync();
 
             foreach (var employee in employees)
             {
-                // calculate fields
                 employee.SuggestedBonus = CalculateSuggestedBonus(employee);
             }
 
@@ -116,95 +104,58 @@ namespace EmployeeManagement.Services
 
         public InternalEmployee? FetchInternalEmployee(Guid employeeId)
         {
-            var employee = _repository.GetInternalEmployee(employeeId);
+            var employee = repository.GetInternalEmployee(employeeId);
 
             if (employee != null)
             {
-                // calculate fields
                 employee.SuggestedBonus = CalculateSuggestedBonus(employee);
             }
+
             return employee;
         }
 
-        public InternalEmployee CreateInternalEmployee(
-            string firstName, string lastName)
+        public InternalEmployee CreateInternalEmployee(string firstName, string lastName)
         {
-            // use the factory to create the object 
-            var employee = (InternalEmployee)_employeeFactory.CreateEmployee(firstName, lastName);
+            var employee = (InternalEmployee)factory.CreateEmployee(firstName, lastName);
+            var obligatoryCourses = repository.GetCourses(_obligatoryCourseIds);
 
-            // apply business logic 
-
-            // add obligatory courses attended by all new employees
-            // during vetting process
-
-            // get those courses  
-            var obligatoryCourses = _repository.GetCourses(_obligatoryCourseIds);
-
-            // add them for this employee
-            foreach (var obligatoryCourse in obligatoryCourses)
-            {
-                employee.AttendedCourses.Add(obligatoryCourse);
-            }
-
-            // calculate the suggested bonus
+            obligatoryCourses.ForEach(c => employee.AttendedCourses.Add(c));
             employee.SuggestedBonus = CalculateSuggestedBonus(employee);
+
             return employee;
         }
 
-        public async Task<InternalEmployee> CreateInternalEmployeeAsync(
-           string firstName, string lastName)
+        public async Task<InternalEmployee> CreateInternalEmployeeAsync(string firstName, string lastName)
         {
-            // use the factory to create the object 
-            var employee = (InternalEmployee)_employeeFactory.CreateEmployee(firstName, lastName);
+            var employee = (InternalEmployee)factory.CreateEmployee(firstName, lastName);
+            var obligatoryCourses = await repository.GetCoursesAsync(_obligatoryCourseIds);
 
-            // apply business logic 
-
-            // add obligatory courses attended by all new employees
-            // during vetting process
-
-            // get those courses  
-            var obligatoryCourses = await _repository.GetCoursesAsync(_obligatoryCourseIds);
-
-            // add them for this employee
-            foreach (var obligatoryCourse in obligatoryCourses)
-            {
-                employee.AttendedCourses.Add(obligatoryCourse);
-            }
-
-            // calculate the suggested bonus
+            obligatoryCourses.ForEach(c => employee.AttendedCourses.Add(c));
             employee.SuggestedBonus = CalculateSuggestedBonus(employee);
+
             return employee;
         }
 
-        public ExternalEmployee CreateExternalEmployee(
-            string firstName, string lastName, string company)
+        public ExternalEmployee CreateExternalEmployee(string firstName, string lastName, string company)
         {
-            // create a new external employee with default values 
-            var employee = (ExternalEmployee)_employeeFactory.CreateEmployee(
+            var employee = (ExternalEmployee)factory.CreateEmployee(
                 firstName, lastName, company, true);
 
-            // no obligatory courses for external employees, return it
             return employee;
         }
 
         public async Task AddInternalEmployeeAsync(InternalEmployee internalEmployee)
         {
-            _repository.AddInternalEmployee(internalEmployee);
-            await _repository.SaveChangesAsync();
+            repository.AddInternalEmployee(internalEmployee);
+            await repository.SaveChangesAsync();
         }
 
-        public void NotifyOfAbsence(Employee employee)
-        {
-            // Employee is absent.  Other parts of the application may 
-            // respond to this. Trigger the EmployeeIsAbsent event 
-            // (via a virtual method so it can be overridden in subclasses)
+        public void NotifyOfAbsence(Employee employee) =>
             OnEmployeeIsAbsent(new EmployeeIsAbsentEventArgs(employee.Id));
-        }
 
-        protected virtual void OnEmployeeIsAbsent(EmployeeIsAbsentEventArgs eventArgs)
-        {
-            EmployeeIsAbsent?.Invoke(this, eventArgs);
-        }
+        protected virtual void OnEmployeeIsAbsent(
+            EmployeeIsAbsentEventArgs eventArgs) => EmployeeIsAbsent?.Invoke(this, eventArgs);
+
 
         private int CalculateSuggestedBonus(InternalEmployee employee)
         {
