@@ -44,3 +44,22 @@
     - Assertions: A boolean expression that should evaluate to true.
         - A test can contain 1:M asserts. Multiple assertions are acceptable if they assert the same behavior.
     - Core unit testing senarios:
+        - Async code: 
+            - Asserting on Exceptions. NOTES:
+                - 100 is the minimum raise.
+                - A minimum raise cannot be awarded twice in a row.
+                - Throws EmployeeInvalidRaiseException.
+            - When your Assert is async, you need to await it. Otherwise, the resulting Task is not returned and cannot be inacted upon.
+            - ThrowsAny(Async)<T> takes derived versions into consideration, while Throws(Async)<T> does not.
+            - Asserting on Events:
+            - Asserting on private methods: Do not test this. This detail does not exist in isolation.
+                - Test the method of the behavior of the method that uses the private method.
+                - Do not break encapsulation. Use [InternalsVisible] as a poor alternative.
+    - SUMMARY:
+
+- SETTING UP TESTS & CONTROLLING TEST EXECUTION:
+    - Constructor & dispose.
+    - Class fixture.
+    - Collection fixture.
+    - Integrating test context with ASP.NET Core's dependency injection system.
+    - Categorizing tests. Skipping tests.
