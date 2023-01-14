@@ -58,8 +58,61 @@
     - SUMMARY:
 
 - SETTING UP TESTS & CONTROLLING TEST EXECUTION:
-    - Constructor & dispose.
-    - Class fixture.
-    - Collection fixture.
+    - Patterns within the 'arrange.'
+        - Constructor & dispose: Set up test context in the constructor, potentially clean up in Dispose method.
+            - Context is recreated for each test. Test class inctance is not shared. Can be slow.
+        - Class fixture: Create a single instance, shared across the class and cleaned-up after the class is disposed.
+            - Use when context creation and clean-up is expensive.
+            - However, don't let a test depend on changes made to the context by other tests. 
+            - Test must remain isolated. You don't have control over the order in which tests are run.
+        - Collection fixture: Create a single test context shared among tests in several test classes.
+            - Context is cleaned up after all tests across classes have completed.
+            - Use when context creation and clean-up is expensive.
     - Integrating test context with ASP.NET Core's dependency injection system.
-    - Categorizing tests. Skipping tests.
+        - In ASP.NET Core, dependencies are often resolved via the built-in IoC container. 
+        - Can this be integrated with a unit test?
+            - Newing up dependencies is the prefered approach. Simple. Fast. Concise.
+            - You *might* want to integrate with the DI system:
+                - If the class has got a lot of dependencies. If the dependency tree is large.
+    - Categorizing tests:
+        - Out of the box, tests are grouped by class.
+    - Skipping tests.
+
+- WORKING WITH DATA-DRIVEN TESTS:
+    - Theories versus facts.
+        - e.g.: Additional course would mean: (1) Writting additional tests. (2) Channging the existing tests.
+        - Fact: A test which is always true. Testing invariant conditions.
+        - Theory: A test which is only true for a particular set of data.
+    - Data-driven tests:
+        - Inline data:
+        - Member data: Data via a property or method. 
+            - e.g.: Note the static property and the return type signature.
+            ```csharp
+                public static IEnumerable<object[]> ExampleTestDataFroGiveRaise_WithProperty
+                {
+                    get
+                    {
+                        return new List<object[]>
+                        {
+                            new object[] { 100, true },
+                            new object[] { 200, false }
+                        };
+                    }
+                }
+
+                [Theory()]
+                [MemberData(nameof(ExampleTestDataFroGiveRaise_WithProperty))]
+                public async Task GiveRaise_RaiseGiven_EmployeeRaiseGivenMatchesValue_Async(
+                    int raise, bool isRaise)
+                { }
+            ```
+        - Class data: Data provided via an external class.
+        - Type-safe approach: use [TheoryData()] for type-safe data.
+            - Abstract base: TheoryData<T1, T2... > Providing an Add(T1, T2...) method.
+    - Getting Data From An External Source:
+        - Providing test data to our theories. Others can manage it. (QA.)
+        - e.g.: CSV file. NOTE: Copy to Output Directory: Copy Always.
+    - SUMMARY:
+
+- ISOLATING UNIT TESTS WITH ASP.NET CORE TECHNIQUES & MOCKING:
+    - 

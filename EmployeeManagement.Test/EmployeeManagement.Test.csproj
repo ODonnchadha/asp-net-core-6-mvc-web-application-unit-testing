@@ -24,4 +24,10 @@
     <ProjectReference Include="..\EmployeeManagement\EmployeeManagement.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Data\External\EmployeeServiceTestData.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
