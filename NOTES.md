@@ -115,4 +115,26 @@
     - SUMMARY:
 
 - ISOLATING UNIT TESTS WITH ASP.NET CORE TECHNIQUES & MOCKING:
-    - 
+    - Isolated from other system components: Database. File system. Network.
+        - Pass/fail should only be related to the couse of the code under test.
+    - Test doubles: A generic term for any case where you replace a production object for testing purpose(s).
+        - Fakes: A working implementation not suitable for production use. e.g.: SQLLite In-Memory.
+        - Dummies: A test double that is never ccessed or used. e.g.: Newing up an instance and not using it. (via constructor)
+        - Stubs: A test double that provides fake data to the SUT. e.g.: An "employee."
+        - Spies: A test double capable of capturing indirect output and providing indirect input as needed. 
+            - View this as a subclass of the class being tested which adds behavior before/after.
+        - Mocks: A test double that implements the expected behavior.
+    - Isolation approaches: (Different approaches are sometimes combined.)
+        - Manually creating test doubles.
+        - Using built-in framework or library functionality to create test doubles.
+        - Using a mocking framework to create test dumies.
+    - Isolation with EF Core:
+        - EF Core: Calling into a database. In-memory to avoid i/o.
+            - In-memory provider used for simple scenarios. Does not behave like a real DB in many ways. Discouraged to use.
+            - Use SQLite in-memory mode. Best compatibility.
+    - Issolation with HTTP client.
+        - Network calls must be isolated. A custom message handler can short-circuit the actual call.
+        - e.g.: client -> request messsage -> api -> response message -> client. All via the message handler.
+    - Defacto: Moq. With Mock Object. Interface. And Async.
+        - M
+    - Use cases.
