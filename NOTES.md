@@ -136,5 +136,16 @@
         - Network calls must be isolated. A custom message handler can short-circuit the actual call.
         - e.g.: client -> request messsage -> api -> response message -> client. All via the message handler.
     - Defacto: Moq. With Mock Object. Interface. And Async.
-        - M
+        - Never Mock the "thing" that you are testing.
+        - e.g.: NOTE: virtual method. Moq is best suited for overrideable behavior. Abstract classes. And interfaces.
+            - Also. Within "setup" chain, last defined wins.
     - Use cases.
+        - Which isolation should you use? Consider:
+            - Test reliability. Effort required. Available knowledge.
+
+- UNIT TESTING ASP.NET CORE MVC CONTROLLERS:
+    - Should you unit test your controllers? And, if so, how?
+    - Code coverage and deciding what to test. Controllers with a variety of techniques.
+    - TEST the behaviour that you, yourself, coded. Code coverage. ROI. Steer away from generalizations.
+    - Thick controllers. Actions which contain logic. EF Core. Model state. Mapping code. Conditional code.
+    - Thin controller. Actions that delegate implementation.
