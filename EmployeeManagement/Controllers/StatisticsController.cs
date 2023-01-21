@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using EmployeeManagement.ActionFilters;
 using EmployeeManagement.ViewModels;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -8,17 +7,17 @@ namespace EmployeeManagement.Controllers
 {
     public class StatisticsController : Controller
     {
-        private readonly IMapper _mapper;
-
-        public StatisticsController(IMapper mapper)
-        {
-            _mapper = mapper;
-        }
+        private readonly IMapper mapper;
+        public StatisticsController(IMapper mapper) => this.mapper = mapper;
 
         public IActionResult Index()
         {
-            var httpConnectionFeature = HttpContext.Features.Get<IHttpConnectionFeature>();
-            return View(_mapper.Map<StatisticsViewModel>(httpConnectionFeature)); 
+            var httpConnectionFeature = 
+                HttpContext.Features.Get<IHttpConnectionFeature>();
+
+            return View(
+                mapper.Map<StatisticsViewModel>(
+                    httpConnectionFeature)); 
         }
     }
 }

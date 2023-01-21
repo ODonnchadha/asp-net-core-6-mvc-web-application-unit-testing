@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using EmployeeManagement.Interfaces.Services;
 using EmployeeManagement.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -18,27 +19,38 @@ namespace EmployeeManagement.Controllers
             _mapper = mapper;
         }
 
+        [Authorize()]
+        public IActionResult ProtectedIndex()
+        {
+            if (User.IsInRole("Admin"))
+            {
+                return RedirectToAction("AdminIndex", "EmployeeManagement");
+            }
+
+            return RedirectToAction("Index", "EmployeeManagement");
+        }
+
         public async Task<IActionResult> Index()
         {
             var internalEmployees = await _employeeService
                 .FetchInternalEmployeesAsync();
 
-            // with manual mapping
-            var internalEmployeeForOverviewViewModels =
-                internalEmployees.Select(e => 
-                    new InternalEmployeeForOverviewViewModel()
-                    {
-                        Id = e.Id,
-                        FirstName = e.FirstName,
-                        LastName = e.LastName,
-                        Salary = e.Salary,
-                        SuggestedBonus = e.SuggestedBonus,
-                        YearsInService = e.YearsInService
-                    });
-
-            // with AutoMapper
+            // Manual Mapping:
             //var internalEmployeeForOverviewViewModels =
-            //    _mapper.Map<IEnumerable<InternalEmployeeForOverviewViewModel>>(internalEmployees);
+            //    internalEmployees.Select(e => 
+            //        new InternalEmployeeForOverviewViewModel()
+            //        {
+            //            Id = e.Id,
+            //            FirstName = e.FirstName,
+            //            LastName = e.LastName,
+            //            Salary = e.Salary,
+            //            SuggestedBonus = e.SuggestedBonus,
+            //            YearsInService = e.YearsInService
+            //        });
+
+            // AutoMapper:
+            var internalEmployeeForOverviewViewModels =
+                _mapper.Map<IEnumerable<InternalEmployeeForOverviewViewModel>>(internalEmployees);
 
             return View(
                 new EmployeeOverviewViewModel(internalEmployeeForOverviewViewModels));

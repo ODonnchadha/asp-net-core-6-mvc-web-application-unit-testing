@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmployeeManagement", "Emplo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TopLevelManagement", "TopLevelManagement\TopLevelManagement.csproj", "{6807FF4E-072D-4AE3-81BC-67D75FE791DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmployeeManagement.Test", "EmployeeManagement.Test\EmployeeManagement.Test.csproj", "{23174600-2570-4F11-9045-2388DBC0B015}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmployeeManagement.Test", "EmployeeManagement.Test\EmployeeManagement.Test.csproj", "{23174600-2570-4F11-9045-2388DBC0B015}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

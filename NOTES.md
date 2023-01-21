@@ -147,5 +147,35 @@
     - Should you unit test your controllers? And, if so, how?
     - Code coverage and deciding what to test. Controllers with a variety of techniques.
     - TEST the behaviour that you, yourself, coded. Code coverage. ROI. Steer away from generalizations.
-    - Thick controllers. Actions which contain logic. EF Core. Model state. Mapping code. Conditional code.
-    - Thin controller. Actions that delegate implementation.
+    - Thick controllers: Actions which contain logic. EF Core. Model state. Mapping code. Conditional code.
+    - Thin controller: Actions that delegate implementation. Command or mediator pattern.
+    - Test isolation is important. Avoid model binding. Filters. Routing.
+    - Testing MVC Controllers:
+        - Expected return type. Expected type of the returned data. 
+        - Expected values of the returned data. Other action logic that's not framework-related code.
+        - Behavior you are testing can, and perhaps should, result in several Asserts within a given test.
+        - NOTE: We are now testing a mock instead of the actual behaviour:
+            ```csharp
+                var mapper = new Mock<IMapper>();
+                mapper.Setup(
+                    m => m.Map<InternalEmployee, InternalEmployeeForOverviewViewModel>
+                    (It.IsAny<InternalEmployee>())).Returns(
+                    new InternalEmployeeForOverviewViewModel());
+            ```
+        - NOTE: Use the actual Automapper instance:
+            ```csharp
+                var configuration = new MapperConfiguration(config =>
+                    config.AddProfile<EmployeeProfile>());
+                var mapper = new Mapper(configuration);
+            ```
+        - Use a Mock if you only need an instance. Use something concrete if you need to Assert() mappings.
+        - NOTE: Binding will evaluate model state. So, for Controller validation, we need to physically add invalid model state.
+            ```csharp
+                controller.ModelState.AddModelError("X", "XYZ");
+            ```
+    - HttpContext: 
+        - An object which encapsulates all HTTP-specific information about an individual HTTP request. 
+            - A container for a single request.
+                - Request. Response. Features (Connection. Server Information.) User. Session.
+        - Try to use the built-in default implementation. DefaultHttpContext.
+        - But: Use Moq: Mock<HttpContext>();

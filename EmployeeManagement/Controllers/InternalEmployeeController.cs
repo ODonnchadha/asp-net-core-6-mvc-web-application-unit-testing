@@ -45,12 +45,22 @@ namespace EmployeeManagement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> InternalEmployeeDetails(
-            [FromRoute(Name = "id")] Guid? employeeId)
+        public async Task<IActionResult> InternalEmployeeDetails([FromRoute(Name = "id")] Guid? employeeId)
         {
             if (!employeeId.HasValue)
-            {                 
-                return RedirectToAction("Index", "EmployeeOverview"); 
+            {
+                if (Guid.TryParse(HttpContext?.Session?.GetString("EmployeeId"), out Guid sessionId))
+                {
+                    employeeId = sessionId;
+                }
+                else if (Guid.TryParse(TempData["EmployeeId"]?.ToString(), out Guid tmpId))
+                {
+                    employeeId = tmpId;
+                }
+                else
+                {
+                    return RedirectToAction("Index", "EmployeeOverview");
+                }
             }
 
             var internalEmployee = await _employeeService.FetchInternalEmployeeAsync(employeeId.Value); 
