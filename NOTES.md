@@ -179,3 +179,33 @@
                 - Request. Response. Features (Connection. Server Information.) User. Session.
         - Try to use the built-in default implementation. DefaultHttpContext.
         - But: Use Moq: Mock<HttpContext>();
+    - SUMMARY:
+        - Testing MVC controllers. ViewResult. ViewModels. ModelState. TempData. HttpContext.
+
+- UNIT TESTING ASP.NET CORE MIDDLEWARE, FILTERS, & SERVICE REGISTRATIONS:
+    - Middleware:
+        - Test custom. Not built-in framework code. Integration tests are great for this. Especially if dependencies are tough to mock.
+            - e.g.: Mock the HttpContext. Or use DefaultHttpContext. And handle the RequestDelegate.
+    - ASP.NET Core filters:
+        - A filter allows code to run before or after specific stages in a request processing pipeline.
+            - Custom filters often handle cross-cutting concerns. Error-handling. Caching.
+            - Avoid code duplication.
+            - Filters runs in the ASP.NET Core action invocation pipeline.
+            - Types: Action. Authorization. Resource. Exception. Result.
+            - Action filters: Run immediately before & after an action method is called.
+            - Can change the arguments passed into an action. Can change the result returned from the action.
+            - How you unit test depends upon how you use the associated filter.
+    - Service registrations:
+        - Services are registered on ASP.NET Core's included IoC container. These registrations can be unit tested.
+        - Create an IServiceCollection & register services on it. Build an IServiceProvider and obtain the service from it.
+    - SUMMARY:
+        - Knowing how to mock the registration.
+
+- IMTEGRATING UNIT TESTS IN DEVELOPMENT & RELEASE FLOWS:
+    - Alternative ways of running tests.
+        - CLI. (dot net test.)
+        - Test runners versus test frameworks.
+    - Integration:
+        - Parallel testing:
+        - Testing against multiple target frameworks.
+        - Integrating testing in CI/CD pipeline.

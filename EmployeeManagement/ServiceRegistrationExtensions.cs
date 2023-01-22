@@ -15,7 +15,8 @@ namespace EmployeeManagement
         {
             services.AddScoped<IEmployeeService, EmployeeService>();
             services.AddScoped<IPromotionService, PromotionService>();
-            services.AddScoped<EmployeeFactory>(); 
+            services.AddScoped<EmployeeFactory>();
+
             return services;
         }
 
@@ -25,6 +26,7 @@ namespace EmployeeManagement
             services.AddDbContext<EmployeeDbContext>(options =>
                 options.UseSqlite(configuration.GetConnectionString("EmployeeManagementDB")));
             services.AddScoped<IEmployeeManagementRepository, EmployeeManagementRepository>();
+
             return services;
         }
     }

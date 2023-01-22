@@ -1,14 +1,20 @@
 ﻿using AutoMapper;
+using EmployeeManagement.Business;
 using EmployeeManagement.Controllers;
 using EmployeeManagement.Entities;
 using EmployeeManagement.Interfaces.Services;
 using EmployeeManagement.Profiles;
+using EmployeeManagement.Repositories.Tests;
+using EmployeeManagement.Services;
 using EmployeeManagement.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
+using Moq.Protected;
+using System.Net;
 using System.Text;
+using System.Text.Json;
 using Xunit;
 
 namespace EmployeeManagement.Test.Controllers
@@ -19,11 +25,12 @@ namespace EmployeeManagement.Test.Controllers
         public async Task AddInternalEmployee_InvalidInput_MustReturnBadRequast()
         {
             // Arrange.
+            var employee = new Mock<IEmployeeService>();
             var mapper = new Mock<IMapper>();
-            var service = new Mock<IEmployeeService>();
+            var promotion = new Mock<IPromotionService>();
 
             var controller = new InternalEmployeeController(
-                service.Object, mapper.Object);
+                employee.Object, mapper.Object, promotion.Object);
 
             controller.ModelState.AddModelError("X", "XYZ");
 
@@ -42,8 +49,8 @@ namespace EmployeeManagement.Test.Controllers
             // Arrange.
             var id = Guid.NewGuid();
 
-            var service = new Mock<IEmployeeService>();
-            service.Setup(
+            var employee = new Mock<IEmployeeService>();
+            employee.Setup(
                 s => s.FetchInternalEmployeeAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(
                 new InternalEmployee("FIRSTNAME", "LASTNAME", 3, 4000, true, 1)
@@ -60,8 +67,10 @@ namespace EmployeeManagement.Test.Controllers
                 new DefaultHttpContext { }, new Mock<ITempDataProvider>().Object);
             dictionary["EmployeeId"] = id;
 
+            var promotion = new Mock<IPromotionService>();
+
             var controller = new InternalEmployeeController(
-                service.Object, mapper);
+                employee.Object, mapper, promotion.Object);
             controller.TempData = dictionary;
 
             // Act.
@@ -80,8 +89,8 @@ namespace EmployeeManagement.Test.Controllers
             // Arrange.
             var id = Guid.NewGuid();
 
-            var service = new Mock<IEmployeeService>();
-            service.Setup(
+            var employee = new Mock<IEmployeeService>();
+            employee.Setup(
                 s => s.FetchInternalEmployeeAsync(It.IsAny<Guid>()))
                 .ReturnsAsync(
                 new InternalEmployee("FIRSTNAME", "LASTNAME", 3, 4000, true, 1)
@@ -103,8 +112,10 @@ namespace EmployeeManagement.Test.Controllers
             var context = new DefaultHttpContext { };
             context.Session = session.Object;
 
+            var promotion = new Mock<IPromotionService>();
+
             var controller = new InternalEmployeeController(
-                service.Object, mapper);
+                employee.Object, mapper, promotion.Object);
 
             controller.ControllerContext = new ControllerContext
             {
@@ -119,6 +130,69 @@ namespace EmployeeManagement.Test.Controllers
             var model = Assert.IsType<InternalEmployeeDetailViewModel>(view.Model);
 
             Assert.Equal(id, model.Id);
+        }
+
+        [Fact()]
+        public async Task ExecutePromotionRequest_RequestPromotion_MustPromoteEmployee()
+        {
+            // Arrange.
+            var id = Guid.NewGuid();
+            var level = 1;
+
+            var employee = new Mock<IEmployeeService>();
+            employee.Setup(
+                s => s.FetchInternalEmployeeAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(
+                new InternalEmployee("FIRSTNAME", "LASTNAME", 3, 4000, true, level)
+                {
+                    Id = id,
+                    SuggestedBonus = 1,
+                });
+
+            var mapper = new Mapper(
+                new MapperConfiguration(
+                config => config.AddProfile<EmployeeProfile>()));
+
+            var handler = new Mock<HttpMessageHandler>();
+            handler.Protected().Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage(
+                    HttpStatusCode.OK)
+                {
+                    Content = new StringContent(
+                        JsonSerializer.Serialize(
+                            new PromotionEligibility
+                            { 
+                                EligibleForPromotion = true 
+                            },
+                            new JsonSerializerOptions
+                            {
+                                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                            }), 
+                        Encoding.ASCII, 
+                        "application/json")
+                });
+
+            var client = new HttpClient(handler.Object);
+
+            // var promotion = new Mock<IPromotionService>();
+            var promotion = new PromotionService(
+                client, new EmployeeManagementTestDataRepository { });
+
+            var controller = new InternalEmployeeController(
+                employee.Object, mapper, promotion);
+
+            // Act.
+            var result = await controller.ExecutePromotionRequest(id);
+
+            // Assery.
+            var view = Assert.IsType<ViewResult>(result);
+            var model = Assert.IsType<InternalEmployeeDetailViewModel>(view.Model);
+
+            Assert.Equal(id, model.Id);
+            Assert.Equal(++level, model.JobLevel);
         }
     }
 }

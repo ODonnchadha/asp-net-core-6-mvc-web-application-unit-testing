@@ -7,14 +7,16 @@ namespace EmployeeManagement.Controllers
 {
     public class InternalEmployeeController : Controller
     {
-        private readonly IEmployeeService _employeeService;
-        private readonly IMapper _mapper; 
+        private readonly IEmployeeService employee;
+        private readonly IMapper mapper;
+        private readonly IPromotionService promotion;
 
-        public InternalEmployeeController(IEmployeeService employeeService,
-            IMapper mapper)
+        public InternalEmployeeController(IEmployeeService employee,
+            IMapper mapper, IPromotionService promotion)
         {
-            _employeeService = employeeService;
-            _mapper = mapper;
+            this.employee = employee;
+            this.mapper = mapper;
+            this.promotion= promotion;
         }
 
         [HttpGet]
@@ -35,10 +37,10 @@ namespace EmployeeManagement.Controllers
                 // create an internal employee entity with default values filled out
                 // and the values the user inputted
                 var internalEmplooyee =
-                    await _employeeService.CreateInternalEmployeeAsync(model.FirstName, model.LastName);
+                    await employee.CreateInternalEmployeeAsync(model.FirstName, model.LastName);
 
                 // persist it
-                await _employeeService.AddInternalEmployeeAsync(internalEmplooyee);
+                await employee.AddInternalEmployeeAsync(internalEmplooyee);
             }
 
             return RedirectToAction("Index", "EmployeeOverview");
@@ -63,34 +65,44 @@ namespace EmployeeManagement.Controllers
                 }
             }
 
-            var internalEmployee = await _employeeService.FetchInternalEmployeeAsync(employeeId.Value); 
+            var internalEmployee = await employee.FetchInternalEmployeeAsync(employeeId.Value); 
             if (internalEmployee == null)
             {
                 return RedirectToAction("Index", "EmployeeOverview"); 
             }
              
-            return View(_mapper.Map<InternalEmployeeDetailViewModel>(internalEmployee));  
+            return View(mapper.Map<InternalEmployeeDetailViewModel>(internalEmployee));  
         }
 
         [HttpPost]
         public async Task<IActionResult> ExecutePromotionRequest(
-            [FromForm(Name = "id")] Guid? employeeId)
+            [FromForm(Name = "id")] Guid? id)
         {
-            if (!employeeId.HasValue)
+            if (!id.HasValue)
             {
                 return RedirectToAction("Index", "EmployeeOverview");
             }
 
-            var internalEmployee = await _employeeService
-                .FetchInternalEmployeeAsync(employeeId.Value);
+            var e = await employee.FetchInternalEmployeeAsync(id.Value);
 
-            if (internalEmployee == null)
+            if (e == null)
             {
                 return RedirectToAction("Index", "EmployeeOverview");
-            } 
+            }
+
+            if (await promotion.PromoteInternalEmployeeAsync(e))
+            {
+                ViewBag.PromotionRequestMessage = "Employee was promoted.";
+
+                e = await employee.FetchInternalEmployeeAsync(e.Id);
+            }
+            else
+            {
+                ViewBag.PromotionRequestMessage = "Employee is not eligible for promotion.";
+            }
  
             return View("InternalEmployeeDetails", 
-                _mapper.Map<InternalEmployeeDetailViewModel>(internalEmployee));
+                mapper.Map<InternalEmployeeDetailViewModel>(e));
         }
     }
 }
